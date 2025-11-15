@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Sửa Tác giả</div>
+            <div class="card-body">
+                <form action="{{ url_for('update_author', id=author.id) }}" method="POST">
+                    <input type="text" name="name" class="form-control mb-3" value="{{ author.name }}" required>
+                    <button class="btn btn-primary">Lưu</button>
+                    <a href="{{ url_for('manage_page') }}" class="btn btn-secondary">Hủy</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

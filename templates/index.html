@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+{% block content %}
+<!-- Form tìm kiếm (Giữ nguyên) -->
+<div class="card mb-4">
+    <div class="card-header"><h5 class="mb-0"><i class="bi bi-search"></i> Tìm kiếm sách</h5></div>
+    <div class="card-body">
+        <form action="{{ url_for('index') }}" method="GET">
+            <div class="row g-2">
+                <div class="col-md-3"><input type="text" class="form-control" name="q_title" placeholder="Tên sách" value="{{ q_title or '' }}"></div>
+                <div class="col-md-3"><input type="text" class="form-control" name="q_author" placeholder="Tên tác giả" value="{{ q_author or '' }}"></div>
+                <div class="col-md-2"><select class="form-select" name="q_category"><option value="">-- Thể loại --</option>{% for c in categories %}<option value="{{ c.id }}" {% if q_category == c.id|string %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select></div>
+                <div class="col-md-2"><select class="form-select" name="q_language"><option value="">-- Ngôn ngữ --</option>{% for l in languages %}<option value="{{ l.id }}" {% if q_language == l.id|string %}selected{% endif %}>{{ l.name }}</option>{% endfor %}</select></div>
+                <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">Tìm</button></div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<table class="table table-striped align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th style="width: 10%;">Ảnh bìa</th>
+            <th style="width: 30%;">Tên sách & Trạng thái</th>
+            <th>Tác giả</th>
+            <th>Thể loại</th>
+            <th>Giá</th>
+            <th class="text-center">Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for book in books %}
+        <tr>
+            <td>
+                <img src="{{ url_for('static', filename='book_covers/' + book.image_file) }}" class="img-thumbnail" style="width: 70px; height: 100px; object-fit: cover;">
+            </td>
+            <td>
+                <a href="{{ url_for('view_book', id=book.id) }}" class="fw-bold text-decoration-none">{{ book.title }}</a>
+                <!--! <<< CẬP NHẬT: Hiển thị số lượng >>> -->
+                <div class="mt-1">
+                    {% if book.available_quantity > 0 %}
+                        <span class="badge bg-success">
+                            <i class="bi bi-check-circle-fill"></i> Còn {{ book.available_quantity }} / {{ book.total_quantity }}
+                        </span>
+                    {% else %}
+                        <span class="badge bg-danger">
+                            <i class="bi bi-x-circle-fill"></i> Đã hết sách
+                        </span>
+                    {% endif %}
+                </div>
+            </td>
+            <td>{{ book.author.name }}</td>
+            <td>{{ book.category.name }}</td>
+            <td>{{ "{:,.0f} đ".format(book.price) if book.price else '-' }}</td>
+            <td class="text-center">
+                {% if current_user.is_admin %}
+                    <a href="{{ url_for('edit_page', id=book.id) }}" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></a>
+                    <a href="{{ url_for('delete_book', id=book.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Xóa sách này?')"><i class="bi bi-trash"></i></a>
+                {% else %}
+                    <a href="{{ url_for('view_book', id=book.id) }}" class="btn btn-sm btn-info text-white"><i class="bi bi-eye-fill"></i> Xem</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+            <td colspan="6" class="text-center">Không tìm thấy sách nào.</td>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

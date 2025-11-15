@@ -1,0 +1,110 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- CỘT TRÁI: THÔNG TIN CHUNG (Giữ nguyên) -->
+    <div class="col-md-7">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header bg-primary text-white"><h5 class="card-title mb-0"><i class="bi bi-person-lines-fill"></i> Hồ sơ nhân viên</h5></div>
+            <div class="card-body">
+                <form method="POST" action="" enctype="multipart/form-data">
+                    {{ profile_form.hidden_tag() }}
+                    <div class="text-center mb-4">
+                        <img src="{{ image_file }}" class="rounded-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
+                        <div class="mt-3">
+                            {{ profile_form.avatar.label(class="form-label") }}
+                            {{ profile_form.avatar(class="form-control form-control-sm") }}
+                            {% for error in profile_form.avatar.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6 mb-3"><label class="form-label fw-bold">Mã số (ID)</label><input type="text" class="form-control bg-light" value="{{ current_user.user_code }}" disabled readonly></div>
+                        <div class="col-md-6 mb-3"><label class="form-label fw-bold">Quyền hạn</label>{% if current_user.is_admin %}<input type="text" class="form-control bg-light text-danger" value="Quản trị viên (Admin)" disabled readonly>{% else %}<input type="text" class="form-control bg-light" value="Thành viên (User)" disabled readonly>{% endif %}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">{{ profile_form.fullname.label(class="form-label") }}{{ profile_form.fullname(class="form-control") }}</div>
+                        <div class="col-md-6 mb-3">{{ profile_form.position.label(class="form-label") }}{{ profile_form.position(class="form-control") }}</div>
+                    </div>
+                    <div class="mb-3">{{ profile_form.birth_date.label(class="form-label") }}{{ profile_form.birth_date(class="form-control", type="date") }}</div>
+                    <div class="mb-3">{{ profile_form.username.label(class="form-label") }}{{ profile_form.username(class="form-control") }}</div>
+                    <div class="d-grid">{{ profile_form.submit_profile(class="btn btn-primary") }}</div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- CỘT PHẢI: ĐỔI MẬT KHẨU (Giữ nguyên) -->
+    <div class="col-md-5">
+        <div class="card h-100 shadow-sm border-warning">
+            <div class="card-header bg-warning text-dark"><h5 class="card-title mb-0"><i class="bi bi-shield-lock-fill"></i> Đổi Mật khẩu</h5></div>
+            <div class="card-body">
+                <form method="POST" action="">
+                    {{ password_form.hidden_tag() }}
+                    <div class="mb-3">{{ password_form.old_password.label(class="form-label") }}{{ password_form.old_password(class="form-control") }}</div>
+                    <div class="mb-3">{{ password_form.new_password.label(class="form-label") }}{{ password_form.new_password(class="form-control") }}</div>
+                    <div class="mb-3">{{ password_form.confirm_password.label(class="form-label") }}{{ password_form.confirm_password(class="form-control") }}</div>
+                    <div class="d-grid">{{ password_form.submit_password(class="btn btn-warning") }}</div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bảng Lịch sử Mượn của Cá nhân -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header" id="borrow-history">
+                <h5 class="mb-0"><i class="bi bi-clock-history"></i> Lịch sử Mượn Sách Của Tôi</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Ảnh bìa</th>
+                                <th>Tên sách</th>
+                                <th>Ngày mượn</th>
+                                <th class="text-center">Trạng thái</th>
+                                <!--! <<< MỚI: Thêm cột Hành động >>> -->
+                                <th class="text-center">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in my_logs %}
+                            <tr>
+                                <td><img src="{{ url_for('static', filename='book_covers/' + log.book.image_file) }}" style="width: 40px; height: 55px; object-fit: cover;"></td>
+                                <td>{{ log.book.title }}</td>
+                                <td>{{ log.borrow_date.strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td class="text-center">
+                                    {% if log.return_date %}
+                                        <span class="badge bg-success">Đã trả ({{ log.return_date.strftime('%d/%m/%Y') }})</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Đang mượn</span>
+                                    {% endif %}
+                                </td>
+                                <!--! <<< MỚI: Thêm nút Trả sách >>> -->
+                                <td class="text-center">
+                                    {% if log.return_date %}
+                                        <span>-</span>
+                                    {% else %}
+                                        <a href="{{ url_for('return_book', log_id=log.id) }}" class="btn btn-primary btn-sm" onclick="return confirm('Bạn có chắc chắn muốn trả sách này?')">
+                                            Trả sách
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">Bạn chưa mượn cuốn sách nào.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

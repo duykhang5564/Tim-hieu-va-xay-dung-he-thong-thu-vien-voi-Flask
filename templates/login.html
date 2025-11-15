@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header text-center"><h4>Đăng nhập</h4></div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3"><label>Tên đăng nhập</label>{{ form.username(class="form-control") }}</div>
+                    <div class="mb-3"><label>Mật khẩu</label>{{ form.password(class="form-control") }}</div>
+                    <button class="btn btn-primary w-100">Đăng nhập</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

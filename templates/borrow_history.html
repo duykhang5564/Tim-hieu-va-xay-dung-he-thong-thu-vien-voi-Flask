@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h4 class="mb-0"><i class="bi bi-calendar-check-fill"></i> Quản lý Lịch sử Mượn/Trả Sách</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Tên sách</th>
+                        <th>Người mượn</th>
+                        <th>Mã số</th>
+                        <th>Ngày mượn</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-center">Hành động (Admin)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>
+                            <img src="{{ url_for('static', filename='book_covers/' + log.book.image_file) }}" style="width: 30px; height: 45px; object-fit: cover; margin-right: 8px;">
+                            {{ log.book.title }}
+                        </td>
+                        <td>{{ log.borrower.fullname }}</td>
+                        <td>{{ log.borrower.user_code }}</td>
+                        <td>{{ log.borrow_date.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td class="text-center">
+                            {% if log.return_date %}
+                                <span class="badge bg-success">Đã trả ({{ log.return_date.strftime('%d/%m/%Y') }})</span>
+                            {% else %}
+                                <span class="badge bg-danger">ĐANG MƯỢN</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if not log.return_date %}
+                                <a href="{{ url_for('return_book', log_id=log.id) }}" class="btn btn-success btn-sm" onclick="return confirm('Xác nhận người dùng đã trả sách này?')">
+                                    <i class="bi bi-check-lg"></i> Xác nhận Trả
+                                </a>
+                            {% else %}
+                                <button class="btn btn-secondary btn-sm" disabled>Đã xử lý</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">Chưa có lịch sử mượn nào.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

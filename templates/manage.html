@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row g-4">
+    <!-- Tác giả -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header bg-secondary text-white">Quản lý Tác giả</div>
+            <div class="card-body">
+                <form action="{{ url_for('add_author') }}" method="POST" class="d-flex mb-3">
+                    <input type="text" name="author_name" class="form-control me-2" required placeholder="Tên mới">
+                    <button class="btn btn-success">Thêm</button>
+                </form>
+                <ul class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+                    {% for a in authors %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ a.name }}
+                        <div>
+                            <a href="{{ url_for('edit_author_page', id=a.id) }}" class="text-warning me-2"><i class="bi bi-pencil"></i></a>
+                            <a href="{{ url_for('delete_author', id=a.id) }}" class="text-danger" onclick="return confirm('Xóa?')"><i class="bi bi-trash"></i></a>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- Thể loại -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header bg-info text-white">Quản lý Thể loại</div>
+            <div class="card-body">
+                <form action="{{ url_for('add_category') }}" method="POST" class="d-flex mb-3">
+                    <input type="text" name="category_name" class="form-control me-2" required placeholder="Tên mới">
+                    <button class="btn btn-success">Thêm</button>
+                </form>
+                <ul class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+                    {% for c in categories %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ c.name }}
+                        <div>
+                            <a href="{{ url_for('edit_category_page', id=c.id) }}" class="text-warning me-2"><i class="bi bi-pencil"></i></a>
+                            <a href="{{ url_for('delete_category', id=c.id) }}" class="text-danger" onclick="return confirm('Xóa?')"><i class="bi bi-trash"></i></a>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- Ngôn ngữ -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header bg-dark text-white">Quản lý Ngôn ngữ</div>
+            <div class="card-body">
+                <form action="{{ url_for('add_language') }}" method="POST" class="d-flex mb-3">
+                    <input type="text" name="language_name" class="form-control me-2" required placeholder="Tên mới">
+                    <button class="btn btn-success">Thêm</button>
+                </form>
+                <ul class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+                    {% for l in languages %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ l.name }}
+                        <div>
+                            <a href="{{ url_for('edit_language_page', id=l.id) }}" class="text-warning me-2"><i class="bi bi-pencil"></i></a>
+                            <a href="{{ url_for('delete_language', id=l.id) }}" class="text-danger" onclick="return confirm('Xóa?')"><i class="bi bi-trash"></i></a>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
