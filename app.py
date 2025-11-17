@@ -150,23 +150,38 @@ def admin_required(f):
 # 5. ROUTES
 # ==============================================================================
 
-# --- NHÓM: AUTH & USER ---
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    if current_user.is_authenticated: return redirect(url_for('index'))
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    
     form = RegistrationForm()
     if form.validate_on_submit():
         try:
-            is_first_user = (User.query.count() == 0)
-            user = User(username=form.username.data, fullname=form.fullname.data, user_code=form.user_code.data,
-                birth_date=form.birth_date.data, position=form.position.data, is_admin=is_first_user)
+            # Tất cả user mới đều là user bình thường
+            user = User(
+                username=form.username.data,
+                fullname=form.fullname.data,
+                user_code=form.user_code.data,
+                birth_date=form.birth_date.data,
+                position=form.position.data,
+                is_admin=False  # Không phải admin
+            )
             user.set_password(form.password.data)
-            db.session.add(user); db.session.commit()
-            if is_first_user: flash('Đăng ký thành công! Bạn là Admin đầu tiên.', 'success')
-            else: flash('Đăng ký thành công! Mời bạn đăng nhập.', 'success')
+            db.session.add(user)
+            db.session.commit()
+            
+            flash('Đăng ký thành công! Mời bạn đăng nhập.', 'success')
             return redirect(url_for('login'))
-        except Exception as e: db.session.rollback(); print(f"Lỗi đăng ký: {e}")
-    if request.method == 'POST' and not form.validate(): print("Lỗi Validate Form:", form.errors)
+        
+        except Exception as e:
+            db.session.rollback()
+            print(f"Lỗi đăng ký: {e}")
+            flash(f'Có lỗi xảy ra khi đăng ký. Mã lỗi: {e}', 'danger')
+    
+    if request.method == 'POST' and not form.validate():
+        print("Lỗi Validate Form:", form.errors)
+        
     return render_template('register.html', form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -463,6 +478,26 @@ def update_language(id):
 # 6. TẠO DỮ LIỆU MẪU & CHẠY APP
 # ==============================================================================
 def create_sample_data():
+    """Tạo dữ liệu mẫu nếu DB còn trống, gồm 3 admin và một số metadata"""
+    # --- Tạo 3 tài khoản Admin ---
+    admin_users = [
+        {'username': 'Admin1', 'fullname': 'Admin One', 'user_code': 'A001', 'birth_date': datetime(2005, 1, 1), 'position': 'Quản trị'},
+        {'username': 'Admin2', 'fullname': 'Admin Two', 'user_code': 'A002', 'birth_date': datetime(2005, 2, 2), 'position': 'Quản trị'},
+        {'username': 'Admin3', 'fullname': 'Admin Three', 'user_code':'A003', 'birth_date': datetime(2005, 3, 3), 'position': 'Quản trị'}
+    ]
+    for admin in admin_users:
+        if not User.query.filter_by(username=admin['username']).first():
+            user = User(
+                username=admin['username'],
+                fullname=admin['fullname'],
+                user_code=admin['user_code'],
+                birth_date=admin['birth_date'],
+                position=admin['position'],
+                is_admin=True
+            )
+            user.set_password('Admin777')  # Mật khẩu mặc định cho tất cả admin
+            db.session.add(user)
+            
     authors = ["Nguyễn Nhật Ánh", "J.K. Rowling", "Stephen King"]
     categories = ["Tiểu thuyết", "Trinh thám", "Kinh dị"]
     languages = ["Tiếng Việt", "Tiếng Anh"]
@@ -482,4 +517,4 @@ if __name__ == '__main__':
             create_sample_data()
             print(">>> Đã khởi tạo cơ sở dữ liệu mới.")
     
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0")
