@@ -83,11 +83,21 @@
             <td>{{ "{:,.0f} đ".format(book.price) if book.price else '-' }}</td>
             <td class="text-center">
                 {% if not current_user.is_admin %}
-                    <a href="{{ url_for('toggle_wishlist', book_id=book.id) }}" 
-                    class="btn btn-sm btn-outline-danger me-1" 
-                    title="Thêm/Xóa yêu thích">
-                    <i class="bi bi-heart"></i>
-                    </a>
+                        
+                    {% if book.id in wishlist_book_ids %}
+                        <a href="{{ url_for('toggle_wishlist', book_id=book.id) }}" 
+                            class="btn btn-sm btn-danger me-1" 
+                            title="Bỏ thích">
+                            <i class="bi bi-heart-fill"></i>
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('toggle_wishlist', book_id=book.id) }}" 
+                            class="btn btn-sm btn-outline-danger me-1" 
+                            title="Thêm vào yêu thích">
+                            <i class="bi bi-heart"></i>
+                        </a>
+                    {% endif %}
+
                 {% endif %}
 
     {% if current_user.is_admin %}
