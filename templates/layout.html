@@ -76,6 +76,21 @@
         {% block content %}{% endblock %}
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <footer class="bg-light border-top mt-5 py-3">
+        <div class="container">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0 me-3">
+                    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo DThU" style="height: 60px; width: auto;">
+                </div>
+                <div>
+                    <h6 class="fw-bold text-uppercase mb-1" style="color: #005a8d;">THƯ VIỆN SÁCH</h6>
+                    <div style="font-size: 0.9rem;" class="text-secondary">
+                        <div class="mb-1"><i class="bi bi-geo-alt-fill me-1"></i>Địa chỉ: Số 783 Phạm Hữu Lầu, Phường 6, TP.Cao Lãnh, Đồng Tháp</div>
+                        <div><i class="bi bi-telephone-fill me-1"></i>Điện thoại: 0939800132 </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
