@@ -97,11 +97,13 @@
         <a href="{{ url_for('view_book', id=book.id) }}" class="btn btn-sm btn-info text-white"><i class="bi bi-eye-fill"></i> Xem</a>
     {% endif %}
 </td>
-            </td>
+        
            
         </tr>
         {% else %}
+        </tr>
             <td colspan="6" class="text-center">Không tìm thấy sách nào.</td>
+        </tr>
         {% endfor %}
     </tbody>
 </table>
