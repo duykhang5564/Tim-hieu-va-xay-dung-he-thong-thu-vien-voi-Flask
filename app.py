@@ -279,8 +279,10 @@ def index():
     if q_language: query = query.filter(Language.id == q_language)
     books = query.order_by(Book.title).all()
     categories = Category.query.all(); languages = Language.query.all()
+
+    wishlist_book_ids = [item.book_id for item in current_user.wishlist] #Thêm 
     return render_template('index.html', books=books, categories=categories, languages=languages,
-                           q_title=q_title, q_author=q_author, q_category=q_category, q_language=q_language)
+                           q_title=q_title, q_author=q_author, q_category=q_category, q_language=q_language, wishlist_book_ids=wishlist_book_ids)
 
 @app.route('/book/<int:id>', methods=['GET', 'POST']) # thay thế đoạn cũ(thêm tính năng mới)
 @login_required
