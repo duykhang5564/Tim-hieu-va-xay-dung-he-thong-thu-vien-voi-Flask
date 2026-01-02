@@ -21,8 +21,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'li
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER_AVATARS'] = os.path.join(basedir, 'static', 'avatars')
 app.config['UPLOAD_FOLDER_BOOKS'] = os.path.join(basedir, 'static', 'book_covers')
+app.config['UPLOAD_FOLDER_FILES'] = os.path.join(basedir, 'static', 'book_files') # Cấu hình cho ứng dụng Flask biết thư mục này sẽ được dùng để lưu các file sách(tính năng mới)
 if not os.path.exists(app.config['UPLOAD_FOLDER_AVATARS']): os.makedirs(app.config['UPLOAD_FOLDER_AVATARS'])
 if not os.path.exists(app.config['UPLOAD_FOLDER_BOOKS']): os.makedirs(app.config['UPLOAD_FOLDER_BOOKS'])
+if not os.path.exists(app.config['UPLOAD_FOLDER_FILES']): os.makedirs(app.config['UPLOAD_FOLDER_FILES']) # Dùng để kiểm tra và tạo thư mục lưu file sách(tính năng mới)
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
@@ -78,6 +80,7 @@ class Book(db.Model):
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
     language_id = db.Column(db.Integer, db.ForeignKey('language.id'), nullable=False)
     image_file = db.Column(db.String(100), nullable=False, default='default_book.jpg')
+    book_file = db.Column(db.String(200), nullable=True) # Dùng để khai báo một cột trong bảng CSDL, dùng để lưu đường dẫn hoặc tên file sách(tính năng mới)
     total_quantity = db.Column(db.Integer, nullable=False, default=1)
     available_quantity = db.Column(db.Integer, nullable=False, default=1)
     borrow_logs = db.relationship('BorrowLog', backref='book', lazy=True)
@@ -101,6 +104,17 @@ class Wishlist(db.Model):
     
     # Quan hệ để lấy thông tin sách dễ dàng
     book = db.relationship('Book', lazy=True)
+
+class Rating(db.Model): # (thêm tính năng mới)
+    id = db.Column(db.Integer, primary_key=True) # (thêm mới)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) # (thêm mới)
+    book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False) # (thêm mới)
+    score = db.Column(db.Integer, nullable=False)  # 1 đến 5 sao # (thêm mới)
+    comment = db.Column(db.Text, nullable=True) # (thêm mới)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow) # (thêm mới)
+    
+    user = db.relationship('User', backref='ratings') # (thêm mới)
+    book = db.relationship('Book', backref='ratings') # (thêm mới
 # ==============================================================================
 # 3. FORMS (Giữ nguyên)
 # ==============================================================================
@@ -137,6 +151,14 @@ class ChangePasswordForm(FlaskForm):
     confirm_password = PasswordField('Xác nhận MK', validators=[DataRequired(), EqualTo('new_password')])
     submit_password = SubmitField('Đổi mật khẩu')
 
+# ==== Thêm form đánh giá sách ====
+from wtforms import IntegerField, TextAreaField # (thêm tính năng mới)
+from wtforms.validators import NumberRange, Optional # (thêm mới)
+
+class RatingForm(FlaskForm): # (thêm mới)
+    score = IntegerField('Điểm đánh giá chất lượng sách (1⭐ - 5⭐). ', validators=[DataRequired(), NumberRange(min=1, max=5)]) # (thêm mới)
+    comment = TextAreaField('Hãy chia sẻ nhận xét cho sách này bạn nhé!', validators=[Optional(), Length(max=500)]) # (thêm mới)
+    submit_rating = SubmitField('Gửi đánh giá') # (thêm mới)
 # ==============================================================================
 # 4. UTILS (Giữ nguyên)
 # ==============================================================================
@@ -260,11 +282,34 @@ def index():
     return render_template('index.html', books=books, categories=categories, languages=languages,
                            q_title=q_title, q_author=q_author, q_category=q_category, q_language=q_language)
 
-@app.route('/book/<int:id>')
+@app.route('/book/<int:id>', methods=['GET', 'POST']) # thay thế đoạn cũ(thêm tính năng mới)
 @login_required
 def view_book(id):
     book = Book.query.get_or_404(id)
-    return render_template('view_book.html', book=book)
+    form = RatingForm()
+    
+    # Kiểm tra xem user đã đánh giá sách này chưa
+    existing_rating = Rating.query.filter_by(user_id=current_user.id, book_id=book.id).first()
+    
+    if form.validate_on_submit():
+        if existing_rating:
+            flash('Bạn đã đánh giá sách này rồi.', 'warning')
+        else:
+            new_rating = Rating(
+                user_id=current_user.id,
+                book_id=book.id,
+                score=form.score.data,
+                comment=form.comment.data
+            )
+            db.session.add(new_rating)
+            db.session.commit()
+            flash('Cảm ơn bạn đã đánh giá sách này!', 'success')
+            return redirect(url_for('view_book', id=book.id))
+    
+    # Lấy tất cả đánh giá của sách này
+    ratings = Rating.query.filter_by(book_id=book.id).order_by(Rating.created_at.desc()).all()
+    
+    return render_template('view_book.html', book=book, form=form, ratings=ratings, existing_rating=existing_rating) #
 
 @app.route('/borrow_book/<int:book_id>')
 @login_required
@@ -355,6 +400,10 @@ def add_book():
             file = request.files['image_file']
             if file.filename != '':
                 new_book.image_file = save_picture(file, app.config['UPLOAD_FOLDER_BOOKS'])
+        if 'book_file' in request.files: # Xử lý file upload từ form(Tính năng mới)
+                book_file = request.files['book_file']
+                if book_file.filename != '':
+                    new_book.book_file = save_picture(book_file, app.config['UPLOAD_FOLDER_FILES']) # Lưu file vào thư mục đã cấu hình(tính năng mới)
         db.session.add(new_book); db.session.commit()
         flash('Thêm sách thành công!', 'success')
         return redirect(url_for('index'))
@@ -395,6 +444,11 @@ def update_book(id):
             file = request.files['image_file']
             if file.filename != '':
                 book.image_file = save_picture(file, app.config['UPLOAD_FOLDER_BOOKS'])
+# ===== CẬP NHẬT FILE SÁCH ===== (tính năng mới)
+        if 'book_file' in request.files:
+            book_file = request.files['book_file']
+            if book_file.filename != '':
+                book.book_file = save_picture(book_file,app.config['UPLOAD_FOLDER_FILES'])
         db.session.commit()
     except Exception as e:
         db.session.rollback()
