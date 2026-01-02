@@ -37,16 +37,7 @@
                             <dt class="col-sm-4">Mã sách</dt><dd class="col-sm-8">#{{ book.id }}</dd>
                         </dl>
                         <hr>
-                        <h5 class="text-primary">Tóm tắt nội dung</h5>
-                        {% if book.summary %}
-                            <p style="white-space: pre-wrap;">{{ book.summary }}</p>
-                        {% else %}
-                            <p class="text-muted">Chưa có tóm tắt cho cuốn sách này.</p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            <div class="card-footer d-flex justify-content-between align-items-center">
+                        <div class="card-footer d-flex justify-content-between align-items-center">
                 <a href="{{ url_for('index') }}" class="btn btn-secondary">
                     <i class="bi bi-arrow-left-circle"></i> Quay lại
                 </a>
@@ -63,6 +54,7 @@
                         <button class="btn btn-secondary btn-lg" disabled>Đã hết sách</button>
                     {% endif %}
                 {% endif %}
+            
                 {% if current_user.is_admin %}
                     {% else %}
                     
@@ -77,4 +69,90 @@
         </div>
     </div>
 </div>
+                    </div>
+                        <hr>
+                        <h5 class="text-primary">Tóm tắt nội dung</h5>
+                        {% if book.summary %}
+                            <p style="white-space: pre-wrap;">{{ book.summary }}</p>
+                        {% else %}
+                            <p class="text-muted">Chưa có tóm tắt cho cuốn sách này.</p>
+                        {% endif %}
+                    </div>
+                    <hr><!--Hiển thị nội dung sách xem trước(Tính năng mới)-->
+                        <h5 class="text-primary">Xem nội dung sách</h5>
+
+                        {% if book.book_file %}
+                            <iframe
+                                src="{{ url_for('static', filename='book_files/' + book.book_file) }}"
+                                width="100%"
+                                height="500px"
+                                style="border: 1px solid #000000;">
+                            </iframe>
+                        {% else %}
+                            <p class="text-muted">Sách này hiện chưa có file điện tử.</p>
+                        {% endif %} <!--Kết thúc-->
+                    </div>
+                </div>
+            </div>
+            
+<!-- ==================== BẮT ĐẦU: Đánh giá người dùng (tính năng mới)==================== --> 
+
+<h2 class="text-primary mt-4 text-center">Đánh giá về sách này của bạn</h2>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+
+        <!-- Form đánh giá -->
+        {% if current_user.is_authenticated %}
+            {% if existing_rating %}
+                <div class="alert alert-success text-center">
+                    Bạn đã đánh giá sách này: {{ existing_rating.score }} ⭐
+                </div>    
+            {% else %}
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-body">
+                        <form method="POST">
+                            {{ form.hidden_tag() }}
+                            <div class="mb-3">
+                                {{ form.score.label(class="form-label") }}
+                                {{ form.score(class="form-control", min=1, max=5) }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.comment.label(class="form-label") }}
+                                {{ form.comment(class="form-control", rows="3") }}
+                            </div>
+                            <div class="text-center">
+                                {{ form.submit_rating(class="btn btn-primary") }}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+
+        <!-- Danh sách đánh giá -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                {% if ratings %}
+                    <ul class="list-group list-group-flush">
+                    {% for r in ratings %}
+                        <li class="list-group-item">
+                            <strong>{{ r.user.fullname or r.user.username }}</strong> - {{ r.score }} ⭐
+                            {% if r.comment %}
+                                <p>{{ r.comment }}</p>
+                            {% endif %}
+                            <small class="text-muted">{{ r.created_at.strftime('%d/%m/%Y %H:%M') }}</small>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    <h5 class="text-muted text-center">Chưa có đánh giá nào cho sách này.</h5>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+<hr>
+<!-- ==================== KẾT THÚC: Đánh giá người dùng ==================== -->
 {% endblock %}
