@@ -15,7 +15,22 @@
             <label class="form-label">Cập nhật ảnh bìa mới (Tùy chọn)</label>
             <input type="file" class="form-control" name="image_file" accept="image/png, image/jpeg, image/jpg">
           </div>
-          
+          <hr> <!--Thêm ô upload file sách(Tính nagw mới)-->
+          <div class="mb-3">
+            <label class="form-label">File sách hiện tại</label><br>
+            {% if book.book_file %}
+              <small class="text-success">
+                ✔ <a href="{{ url_for('static', filename='book_files/' + book.book_file) }}" target="_blank">{{ book.book_file }}</a>
+              </small>
+            {% else %}
+              <small class="text-muted">Chưa có file sách</small>
+            {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Cập nhật lại file sách (chỉ chấp nhận định dạng PDF)</label>
+              <input type="file" class="form-control" name="book_file"accept=".pdf">
+            </div><!--Kết thúc-->
           <div class="mb-3"><label>Tiêu đề</label><input type="text" class="form-control" name="title" value="{{ book.title }}" required></div>
           <div class="row">
             <div class="col-md-4 mb-3"><label>Tác giả</label><select class="form-select" name="author_id">{% for a in authors %}<option value="{{ a.id }}" {% if a.id==book.author_id %}selected{% endif %}>{{ a.name }}</option>{% endfor %}</select></div>
