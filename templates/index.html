@@ -1,19 +1,49 @@
 {% extends "layout.html" %}
 {% block content %}
 <!-- Form tìm kiếm (Giữ nguyên) -->
-<div class="card mb-4">
-    <div class="card-header"><h5 class="mb-0"><i class="bi bi-search"></i> Tìm kiếm sách</h5></div>
-    <div class="card-body">
-        <form action="{{ url_for('index') }}" method="GET">
-            <div class="row g-2">
-                <div class="col-md-3"><input type="text" class="form-control" name="q_title" placeholder="Tên sách" value="{{ q_title or '' }}"></div>
-                <div class="col-md-3"><input type="text" class="form-control" name="q_author" placeholder="Tên tác giả" value="{{ q_author or '' }}"></div>
-                <div class="col-md-2"><select class="form-select" name="q_category"><option value="">-- Thể loại --</option>{% for c in categories %}<option value="{{ c.id }}" {% if q_category == c.id|string %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select></div>
-                <div class="col-md-2"><select class="form-select" name="q_language"><option value="">-- Ngôn ngữ --</option>{% for l in languages %}<option value="{{ l.id }}" {% if q_language == l.id|string %}selected{% endif %}>{{ l.name }}</option>{% endfor %}</select></div>
-                <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">Tìm</button></div>
-            </div>
-        </form>
+<div class="search-section mb-5">
+    <div class="d-flex align-items-center mb-3 ms-2">
+        <i class="bi bi-search-heart-fill text-primary fs-4 me-2"></i>
+        <span class="search-label-blue" style="font-size: 1.3rem;">Tìm kiếm sách</span>
     </div>
+
+    <form action="{{ url_for('index') }}" method="GET" class="search-card-pro p-4">
+        <div class="row g-3">
+            <div class="col-lg-3 col-md-6">
+                <input type="text" class="form-control capsule-input" name="q_title" 
+                       placeholder="Nhập tên sách..." value="{{ q_title or '' }}">
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <input type="text" class="form-control capsule-input" name="q_author" 
+                       placeholder="Nhập tác giả..." value="{{ q_author or '' }}">
+            </div>
+            
+            <div class="col-lg-2 col-md-4">
+                <select class="form-select capsule-input" name="q_category">
+                    <option value="">-- Thể loại --</option>
+                    {% for c in categories %}
+                    <option value="{{ c.id }}" {% if q_category == c.id|string %}selected{% endif %}>{{ c.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-lg-2 col-md-4">
+                <select class="form-select capsule-input" name="q_language">
+                    <option value="">-- Ngôn ngữ --</option>
+                    {% for l in languages %}
+                    <option value="{{ l.id }}" {% if q_language == l.id|string %}selected{% endif %}>{{ l.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-lg-2 col-md-4">
+                <button type="submit" class="btn btn-search-pro w-100">
+                    <i class="bi bi-search me-2"></i>Tìm kiếm
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
 
 <table class="table table-striped align-middle">
@@ -68,6 +98,7 @@
     {% endif %}
 </td>
             </td>
+           
         </tr>
         {% else %}
             <td colspan="6" class="text-center">Không tìm thấy sách nào.</td>

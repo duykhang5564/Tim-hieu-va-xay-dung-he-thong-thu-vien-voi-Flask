@@ -3,80 +3,371 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Quản Lý Thư Viện</title>
+    <title>Hệ Thống Thư Viện Hiện Đại</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
     <style>
-        .navbar-avatar { width: 30px; height: 30px; object-fit: cover; border: 2px solid rgb(250, 248, 248); }
+        :root {
+            --primary-gradient: linear-gradient(135deg, #0d6efd 0%, #0043a8 100%);
+        }
+
+        body { 
+            background-color: #f4f7fe; 
+            font-family: 'Inter', sans-serif;
+            color: #2d3748;
+        }
+
+        /* Thanh Navbar chuyên nghiệp */
+        .top-navbar {
+            background: var(--primary-gradient);
+            height: 65px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+
+        /* Avatar và Thông tin User */
+        .user-dropdown {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 15px;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .user-dropdown:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .navbar-avatar { 
+            width: 36px; height: 36px; 
+            object-fit: cover; 
+            border: 2px solid white;
+        }
+
+        /* Nút chức năng bo tròn (Capsule) */
+        .btn-capsule {
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 8px 18px;
+            transition: all 0.3s;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn-capsule:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        /* Dropdown Menu hiện đại */
+        .dropdown-menu {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            margin-top: 15px !important;
+            padding: 10px;
+        }
+        .dropdown-item {
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+        .dropdown-item:hover {
+            background-color: #f0f4ff;
+            color: #0d6efd;
+        }
+
+        /* Thông báo Flash */
+        .alert {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            background: white;
+            border-left: 5px solid #0d6efd;
+        }
+        /* Thanh tìm kiếm bo tròn to và chuyên nghiệp */
+.search-card-pro {
+    background: #ffffff;
+    border-radius: 30px; /* Bo tròn lớn */
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); /* Đổ bóng nhẹ */
+    overflow: hidden;
+}
+
+.search-label-blue {
+    color: #0d6efd; /* Màu xanh đồng bộ */
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 1rem;
+    letter-spacing: 1px;
+}
+
+/* Ô nhập liệu bo tròn Capsule */
+.capsule-input {
+    border-radius: 50px !important;
+    padding: 12px 20px !important;
+    border: 2px solid #f1f3f5 !important;
+    background-color: #f8f9fa !important;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.capsule-input:focus {
+    border-color: #0d6efd !important;
+    background-color: #fff !important;
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1) !important;
+}
+
+/* Nút tìm kiếm hiện đại */
+.btn-search-pro {
+    background: linear-gradient(135deg, #0d6efd 0%, #0043a8 100%);
+    color: white !important;
+    border-radius: 50px !important;
+    padding: 12px !important;
+    font-weight: 600;
+    border: none;
+    transition: all 0.3s;
+}
+
+.btn-search-pro:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
+}
+/* Hiệu ứng xuất hiện mượt mà cho toàn bộ trang */
+.animate-fade-in {
+    animation: fadeIn 0.8s ease-out;
+}
+
+/* Hiệu ứng trượt từ dưới lên cho Form */
+.animate-slide-up {
+    animation: slideUp 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Hiệu ứng khi nhấn vào ô nhập liệu (Input) */
+.form-control {
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    transform: scale(1.02); /* Phóng to nhẹ khi gõ */
+    box-shadow: 0 0 15px rgba(13, 110, 253, 0.2);
+}
+
+/* Hiệu ứng nút bấm chuyên nghiệp */
+.btn-login-animate {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+}
+
+.btn-login-animate:hover {
+    letter-spacing: 2px; /* Chữ giãn ra nhẹ khi di chuột */
+    box-shadow: 0 5px 15px rgba(13, 110, 253, 0.4);
+}
+/* Hiệu ứng mờ ảo khi vào trang */
+body {
+    animation: transitionIn 0.5s;
+}
+
+@keyframes transitionIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Làm đẹp dòng trong bảng khi di chuột qua */
+tbody tr {
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+tbody tr:hover {
+    background-color: #f1f5f9 !important;
+    transform: scale(1.01);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    z-index: 10;
+}
+
+/* Hiệu ứng cho các nút bấm hành động (Sửa/Xóa) */
+.btn-action {
+    transition: transform 0.2s;
+}
+.btn-action:hover {
+    transform: rotate(5deg) scale(1.1);
+}
+/* Hiệu ứng trượt nhẹ nhàng cho chữ Xin chào */
+    .nav-item-greeting {
+        font-family: 'Segoe UI', sans-serif;
+        font-size: 18px;
+        color: rgba(255, 255, 255, 0.9);
+        border-right: 1px solid rgba(255, 255, 255, 0.3);
+        padding-right: 10px;
+        margin-right: 5px;
+        
+        /* Hiệu ứng chuyên nghiệp */
+        opacity: 0;
+        animation: slideInFade 0.8s ease-out forwards;
+        white-space: nowrap;
+    }
+
+    @keyframes slideInFade {
+        from { opacity: 0; transform: translateX(10px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('index') }}"><i class="bi bi-book-half"></i> Thư Viện Mini</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+
+    <header class="top-navbar mb-5">
+       <div class="container d-flex justify-content-between align-items-center">
             
-            <div class="collapse navbar-collapse" id="navbarContent">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
-                    {% if current_user.is_authenticated %}
-                        
-                        <!--! <<< CẬP NHẬT: Thêm dropdown cho User >>> -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-white fw-bold d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img src="{{ url_for('static', filename='avatars/' + current_user.avatar) }}" class="rounded-circle me-2 navbar-avatar">
-                                <span>{{ current_user.fullname or current_user.username }}</span>
-                                {% if current_user.is_admin %}
-                                    <span class="badge bg-danger ms-2" style="font-size: 0.7em;">Admin</span>
-                                {% endif %}
+            <div class="d-flex align-items-center gap-3">
+                <a href="{{ url_for('index') }}" class="text-decoration-none d-flex align-items-center" style="transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <div class="rounded-3 bg-white bg-opacity-25 d-flex align-items-center justify-content-center me-2 shadow-sm" style="width: 42px; height: 42px; border: 1px solid rgba(255,255,255,0.3);">
+                        <i class="bi bi-journal-bookmark-fill text-white fs-5"></i>
+                    </div>
+                    <div class="d-none d-md-flex flex-column text-white">
+                        <span class="fw-bold" style="font-size: 15px; line-height: 1.1;">THƯ VIỆN</span>
+                        <span style="font-size: 10px; letter-spacing: 1px; opacity: 0.8;">MINI MANAGER</span>
+                    </div>
+    {% if request.endpoint not in ['index', 'login', 'register', None] %}
+        
+        
+    {% endif %}
+</div>
+
+            <div class="d-flex align-items-center gap-2">
+                {% if current_user.is_authenticated %}
+                    
+                    {% if current_user.is_admin %}
+                        <div class="d-none d-lg-flex gap-2 me-2">
+                            <a class="btn btn-success btn-capsule" href="{{ url_for('add_book_page') }}">
+                                <i class="bi bi-plus-lg me-1"></i> Thêm Sách
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="bi bi-person-circle me-2"></i>Hồ sơ cá nhân</a></li>
-<li><a class="dropdown-item" href="{{ url_for('my_wishlist') }}"><i class="bi bi-heart-fill me-2 text-danger"></i>Sách yêu thích</a></li>
-
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
-                            </ul>
-                        </li>
-
-                        <!--! <<< CẬP NHẬT: Thêm nút "Lịch sử Mượn" cho Admin >>> -->
-                        {% if current_user.is_admin %}
-                            <li class="nav-item ms-3 me-2">
-                                <a class="btn btn-success btn-sm" href="{{ url_for('add_book_page') }}"><i class="bi bi-plus-lg"></i> Thêm Sách</a>
-                            </li>
-                            <li class="nav-item me-2">
-                                <a class="btn btn-warning btn-sm" href="{{ url_for('manage_page') }}"><i class="bi bi-gear-fill"></i> Quản lý Dữ liệu</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="btn btn-info btn-sm text-dark" href="{{ url_for('borrow_history') }}"><i class="bi bi-calendar-check-fill"></i> Quản lý Mượn/Trả</a>
-                            </li>
-                        {% endif %}
-                        
-                    {% else %}
-                        <li class="nav-item me-2"><a class="btn btn-outline-light" href="{{ url_for('login') }}">Đăng nhập</a></li>
-                        <li class="nav-item"><a class="btn btn-light" href="{{ url_for('register') }}">Đăng ký</a></li>
+                            <a class="btn btn-warning btn-capsule text-dark" href="{{ url_for('manage_page') }}">
+                                <i class="bi bi-database-fill me-1"></i> Quản lý
+                            </a>
+                        </div>
                     {% endif %}
-                </ul>
+<div class="header-right" style="display: flex; align-items: center; justify-content: flex-end; color: white;">
+    
+    {% if request.endpoint == 'index' %}
+        <div id="greeting-wrapper" class="nav-item-greeting">
+            <span id="js-greeting-text"></span>
+        </div>
+
+        <div class="admin-profile" style="font-weight: 600; margin-left: 5px;">
+            {{ current_user.fullname if current_user.is_authenticated else 'Admin One' }} 👋
+        </div>
+    {% endif %}
+
+</div>
+                    <div class="dropdown">
+                        <a class="user-dropdown d-flex align-items-center text-decoration-none text-white shadow-sm" href="#" role="button" data-bs-toggle="dropdown">
+                            <img src="{{ url_for('static', filename='avatars/' + current_user.avatar) }}" class="rounded-circle me-2 navbar-avatar shadow-sm">
+                            <div class="text-start d-none d-sm-block">
+                                <div class="fw-bold lh-1" style="font-size: 0.85rem;">{{ current_user.fullname or current_user.username }}</div>
+                                <small style="font-size: 0.65rem; opacity: 0.8;">{{ 'Quản trị viên' if current_user.is_admin else 'Thành viên' }}</small>
+                            </div>
+                            <i class="bi bi-chevron-down ms-2 small"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end animate slideIn border-0 shadow">
+                            <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="bi bi-person-circle me-2 text-primary"></i>Hồ sơ cá nhân</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('profile') }}#borrow-history"><i class="bi bi-clock-history me-2 text-primary"></i>Lịch sử mượn</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger fw-bold" href="{{ url_for('logout') }}"><i class="bi bi-power me-2"></i>Đăng xuất</a></li>
+                        </ul>
+                    </div>
+
+                {% else %}
+                    <a class="btn btn-link text-white text-decoration-none fw-bold" href="{{ url_for('login') }}">Đăng nhập</a>
+                    <a class="btn btn-light btn-capsule text-primary shadow-sm" href="{{ url_for('register') }}">Đăng ký</a>
+                {% endif %}
             </div>
         </div>
-    </nav>
+    </header>
 
-    <div class="container">
+    <main class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show">
-                        {{ message }}
+                    <div class="alert alert-dismissible fade show mb-4 shadow-sm border-0" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-info-circle-fill me-3 fs-4 text-primary"></i>
+                            <div class="fw-medium">{{ message }}</div>
+                        </div>
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
-        {% block content %}{% endblock %}
-    </div>
 
-    <footer class="bg-light border-top mt-5 py-3">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+document.addEventListener("DOMContentLoaded", function() {
+    const backBtn = document.getElementById('smartBackBtn');
+    if (backBtn) {
+        backBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Lấy địa chỉ trang trước đó mà người dùng đã xem
+            const previousPage = document.referrer;
+            
+            // LOGIC: Nếu không có lịch sử HOẶC trang trước là Login/Register
+            // thì không quay lại đó mà chuyển hướng thẳng về Trang chủ.
+            if (!previousPage || previousPage.includes('/login') || previousPage.includes('/register')) {
+                window.location.href = "{{ url_for('index') }}";
+            } else {
+                // Nếu là trang khác hợp lệ thì quay lại bình thường
+                window.history.back();
+            }
+        });
+    }
+});
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const greetingBox = document.getElementById("js-greeting-text");
+        
+        // Nếu tìm thấy greetingBox (tức là đang ở trang chủ), mới chạy logic giờ
+        if (greetingBox) {
+            const hour = new Date().getHours();
+            let msg = "Xin chào";
+
+            if (hour >= 5 && hour < 12) msg = "Chào buổi sáng";
+            else if (hour >= 12 && hour < 18) msg = "Chào buổi chiều";
+            else msg = "Chào buổi tối";
+
+            greetingBox.innerText = msg + ",";
+        }
+    });
+</script>
+<footer class="bg-light border-top mt-5 py-3">
         <div class="container">
             <div class="d-flex align-items-center">
                 <div class="flex-shrink-0 me-3">
