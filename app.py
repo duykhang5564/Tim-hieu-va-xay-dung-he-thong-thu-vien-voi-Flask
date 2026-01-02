@@ -47,6 +47,8 @@ class User(db.Model, UserMixin):
     password_hash = db.Column(db.String(128), nullable=False)
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
     avatar = db.Column(db.String(100), nullable=False, default='default.jpg')
+    # >>> THÊM DÒNG NÀY <<< ( Thêm Mới Tấn Lộc)
+    wishlist = db.relationship('Wishlist', backref='user', lazy=True) 
     borrow_logs = db.relationship('BorrowLog', backref='borrower', lazy=True)
     def set_password(self, password): self.password_hash = generate_password_hash(password)
     def check_password(self, password): return check_password_hash(self.password_hash, password)
@@ -90,6 +92,15 @@ class BorrowLog(db.Model):
     borrow_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     return_date = db.Column(db.DateTime, nullable=True)
 
+# --- Thêm vào file app.py (Dưới class BorrowLog) --- ( Thêm mới Tấn Lộc)
+class Wishlist(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
+    date_added = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    
+    # Quan hệ để lấy thông tin sách dễ dàng
+    book = db.relationship('Book', lazy=True)
 # ==============================================================================
 # 3. FORMS (Giữ nguyên)
 # ==============================================================================
@@ -150,6 +161,7 @@ def admin_required(f):
 # 5. ROUTES
 # ==============================================================================
 
+# --- NHÓM: AUTH & USER ---
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
@@ -183,6 +195,7 @@ def register():
         print("Lỗi Validate Form:", form.errors)
         
     return render_template('register.html', form=form)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -473,6 +486,36 @@ def edit_language_page(id): return render_template('edit_language.html', languag
 def update_language(id):
     Language.query.get_or_404(id).name = request.form['name']; db.session.commit()
     return redirect(url_for('manage_page'))
+
+    # --- Thêm vào cuối file app.py --- ( Thêm mới Tấn Lộc)
+
+@app.route('/wishlist')
+@login_required
+def my_wishlist():
+    # Lấy danh sách yêu thích của user hiện tại, sắp xếp theo ngày thêm mới nhất
+    items = Wishlist.query.filter_by(user_id=current_user.id).order_by(Wishlist.date_added.desc()).all()
+    return render_template('wishlist.html', items=items)
+
+@app.route('/toggle_wishlist/<int:book_id>')
+@login_required
+def toggle_wishlist(book_id):
+    # Kiểm tra xem đã thích chưa
+    existing_item = Wishlist.query.filter_by(user_id=current_user.id, book_id=book_id).first()
+    
+    if existing_item:
+        # Nếu có rồi thì xóa (Bỏ thích)
+        db.session.delete(existing_item)
+        db.session.commit()
+        flash('Đã xóa khỏi danh sách yêu thích.', 'info')
+    else:
+        # Nếu chưa có thì thêm mới
+        new_item = Wishlist(user_id=current_user.id, book_id=book_id)
+        db.session.add(new_item)
+        db.session.commit()
+        flash('Đã thêm vào danh sách yêu thích!', 'success')
+        
+    # Quay lại trang người dùng vừa đứng
+    return redirect(request.referrer or url_for('index'))
 
 # ==============================================================================
 # 6. TẠO DỮ LIỆU MẪU & CHẠY APP

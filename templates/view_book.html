@@ -63,6 +63,16 @@
                         <button class="btn btn-secondary btn-lg" disabled>Đã hết sách</button>
                     {% endif %}
                 {% endif %}
+                {% if current_user.is_admin %}
+                    {% else %}
+                    
+                    <a href="{{ url_for('toggle_wishlist', book_id=book.id) }}" class="btn btn-outline-danger btn-lg me-2">
+                        <i class="bi bi-heart-fill"></i> Yêu thích
+                    </a>
+                    {% if book.available_quantity > 0 %}
+                        {% else %}
+                        {% endif %}
+                {% endif %}
             </div>
         </div>
     </div>
