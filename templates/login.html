@@ -30,26 +30,36 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label small fw-bold text-muted">MẬT KHẨU</label>
-                        <div class="input-group">
-                            {{ form.password(class="form-control", id="password") }}
-                            <button class="btn btn-outline-secondary"
-                                    type="button"
-                                    id="toggleBtn"
-                                    onclick="togglePassword()">
-                                🙈
-                            </button>
-                        </div>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0 rounded-start-pill px-3">
-                                <i class="bi bi-lock text-primary"></i>
-                            </span>
-                            {{ form.password(class="form-control bg-light border-start-0 rounded-end-pill py-2", placeholder="••••••••") }}
-                        </div>
-                        {% for error in form.password.errors %}
-                            <div class="text-danger small mt-1 ms-3"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
-                        {% endfor %}
-                    </div>
+    <label class="form-label small fw-bold text-muted">MẬT KHẨU</label>
+
+    <div class="input-group">
+        <!-- Icon khóa -->
+        <span class="input-group-text bg-light">
+            <i class="bi bi-lock text-primary"></i>
+        </span>
+
+        <!-- Input password -->
+        {{ form.password(
+            class="form-control bg-light",
+            id="password",
+            placeholder="••••••••"
+        ) }}
+
+        <!-- Nút hiện / ẩn -->
+        <button class="btn btn-outline-secondary"
+                type="button"
+                onclick="togglePassword()"
+                id="toggleBtn">
+            🙈
+        </button>
+    </div>
+
+    {% for error in form.password.errors %}
+        <div class="text-danger small mt-1 ms-1">
+            <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+        </div>
+    {% endfor %}
+</div>
 
                     <div class="d-grid mb-3">
                         <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm py-2" style="letter-spacing: 1px;">
