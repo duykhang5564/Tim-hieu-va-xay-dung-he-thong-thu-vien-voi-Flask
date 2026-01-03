@@ -32,6 +32,15 @@
                     <div class="mb-4">
                         <label class="form-label small fw-bold text-muted">MẬT KHẨU</label>
                         <div class="input-group">
+                            {{ form.password(class="form-control", id="password") }}
+                            <button class="btn btn-outline-secondary"
+                                    type="button"
+                                    id="toggleBtn"
+                                    onclick="togglePassword()">
+                                🙈
+                            </button>
+                        </div>
+                        <div class="input-group">
                             <span class="input-group-text bg-light border-end-0 rounded-start-pill px-3">
                                 <i class="bi bi-lock text-primary"></i>
                             </span>
@@ -57,6 +66,19 @@
                 </p>
             </div>
         </div>
-        
+<script>
+function togglePassword() {
+    const passwordInput = document.getElementById("password");
+    const toggleBtn = document.getElementById("toggleBtn");
+
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        toggleBtn.textContent = "🙊"; // đang hiện mật khẩu
+    } else {
+        passwordInput.type = "password";
+        toggleBtn.textContent = "🙈"; // đang ẩn mật khẩu
+    }
+}
+</script>        
         
 {% endblock %}

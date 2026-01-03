@@ -117,4 +117,36 @@
         {% endfor %}
     </tbody>
 </table>
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+
+        <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+            <a class="page-link bg-dark text-light border-secondary"
+               href="{{ url_for('index', page=pagination.prev_num,
+                                q_title=q_title,
+                                q_author=q_author,
+                                q_category=q_category,
+                                q_language=q_language) }}">
+                «
+            </a>
+        </li>
+
+        <li class="page-item active">
+            <span class="page-link bg-primary text-white border-primary">
+                Trang {{ pagination.page }} / {{ pagination.pages if pagination.pages > 0 else 1 }}
+            </span>
+        </li>
+
+        <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+            <a class="page-link bg-dark text-light border-secondary"
+               href="{{ url_for('index', page=pagination.next_num,
+                                q_title=q_title,
+                                q_author=q_author,
+                                q_category=q_category,
+                                q_language=q_language) }}">
+                »
+            </a>
+        </li>
+    </ul>
+</nav>
 {% endblock %}

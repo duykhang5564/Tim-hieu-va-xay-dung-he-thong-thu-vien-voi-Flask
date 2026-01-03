@@ -238,9 +238,30 @@ tbody tr:hover {
         to { opacity: 1; transform: translateX(0); }
     }
     </style>
+    <style> 
+        .navbar-avatar { width: 30px; height: 30px; object-fit: cover; border: 2px solid rgb(250, 248, 248); }
+    </style>
+    <style>
+    /* ===== BẢNG QUẢN LÝ USER ===== */
+    .user-table thead {
+        background-color: #000;
+        color: #fff;
+    }
+
+    .user-table tbody tr:nth-child(odd) {
+        background-color: #e3f2fd; /* xanh nhạt */
+    }
+
+    .user-table tbody tr:nth-child(even) {
+        background-color: #ffffff;
+    }
+
+    .user-table tbody tr:hover {
+        background-color: #bbdefb;
+    }
+    </style>
 </head>
 <body>
-
     <header class="top-navbar mb-5">
        <div class="container d-flex justify-content-between align-items-center">
             
@@ -269,6 +290,9 @@ tbody tr:hover {
                             </a>
                             <a class="btn btn-warning btn-capsule text-dark" href="{{ url_for('manage_page') }}">
                                 <i class="bi bi-database-fill me-1"></i> Quản lý
+                            </a>
+                            <a class="btn btn-info btn-capsule text-dark" href="{{ url_for('manage_users') }}">
+                                <i class="bi bi-person-gear"></i> Quản lý người dùng
                             </a>
                         </div>
                     {% endif %}
@@ -306,7 +330,7 @@ tbody tr:hover {
     <li>
         <a class="dropdown-item" href="{{ url_for('profile') }}#borrow-history">
             <i class="bi bi-clock-history me-2 text-primary"></i>
-            Lịch sử mượn sáchsách
+            Lịch sử mượn
         </a>
     </li>
     <li>
@@ -326,7 +350,7 @@ tbody tr:hover {
     <li>
         <a class="dropdown-item" href="{{ url_for('profile') }}">
             <i class="bi bi-people-fill me-2 text-success"></i>
-            Quản lý sách được mượn
+            Quản lý người mượn sách
         </a>
     </li>
 {% endif %}
@@ -420,5 +444,3 @@ document.addEventListener("DOMContentLoaded", function() {
     </footer>
 </body>
 </html>
-
-
