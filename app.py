@@ -1,5 +1,7 @@
 import os
 import secrets
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
 from datetime import datetime
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, flash
@@ -9,6 +11,7 @@ from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, SubmitField, DateField
 from wtforms.validators import DataRequired, Length, EqualTo, ValidationError
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # ==============================================================================
@@ -48,6 +51,7 @@ class User(db.Model, UserMixin):
     position = db.Column(db.String(100), nullable=True)
     password_hash = db.Column(db.String(128), nullable=False)
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
+    is_active = db.Column(db.Boolean, default=True) 
     avatar = db.Column(db.String(100), nullable=False, default='default.jpg')
     # >>> THÊM DÒNG NÀY <<< ( Thêm Mới Tấn Lộc)
     wishlist = db.relationship('Wishlist', backref='user', lazy=True) 
@@ -226,7 +230,12 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user and user.check_password(form.password.data):
-            login_user(user); return redirect(request.args.get('next') or url_for('index'))
+            if not user.is_active:
+                flash('Tài khoản đã bị chặn. Vui lòng liên hệ quản trị viên.', 'danger')
+                return redirect(url_for('login'))
+
+            login_user(user)
+            return redirect(request.args.get('next') or url_for('index'))
         else: flash('Sai tên đăng nhập hoặc mật khẩu.', 'danger')
     return render_template('login.html', form=form)
 
@@ -306,23 +315,52 @@ def profile():
         all_borrowing_logs=all_borrowing_logs
     )
 
-
 @app.route('/')
 @login_required
 def index():
-    q_title = request.args.get('q_title'); q_author = request.args.get('q_author')
-    q_category = request.args.get('q_category'); q_language = request.args.get('q_language')
-    query = Book.query.join(Author).join(Category).join(Language)
-    if q_title: query = query.filter(Book.title.like(f'%{q_title}%'))
-    if q_author: query = query.filter(Author.name.like(f'%{q_author}%'))
-    if q_category: query = query.filter(Category.id == q_category)
-    if q_language: query = query.filter(Language.id == q_language)
-    books = query.order_by(Book.title).all()
-    categories = Category.query.all(); languages = Language.query.all()
+    q_title = request.args.get('q_title')
+    q_author = request.args.get('q_author')
+    q_category = request.args.get('q_category')
+    q_language = request.args.get('q_language')
 
-    wishlist_book_ids = [item.book_id for item in current_user.wishlist] #Thêm 
-    return render_template('index.html', books=books, categories=categories, languages=languages,
-                           q_title=q_title, q_author=q_author, q_category=q_category, q_language=q_language, wishlist_book_ids=wishlist_book_ids)
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+
+    query = Book.query.join(Author).join(Category).join(Language)
+
+    if q_title:
+        query = query.filter(Book.title.like(f'%{q_title}%'))
+    if q_author:
+        query = query.filter(Author.name.like(f'%{q_author}%'))
+    if q_category:
+        query = query.filter(Category.id == q_category)
+    if q_language:
+        query = query.filter(Language.id == q_language)
+
+    pagination = query.order_by(Book.title).paginate(
+        page=page,
+        per_page=per_page,
+        error_out=False
+    )
+
+    books = pagination.items
+    categories = Category.query.all()
+    languages = Language.query.all()
+
+    wishlist_book_ids = [item.book_id for item in current_user.wishlist]
+
+    return render_template(
+        'index.html',
+        books=books,
+        pagination=pagination,   
+        categories=categories,
+        languages=languages,
+        q_title=q_title,
+        q_author=q_author,
+        q_category=q_category,
+        q_language=q_language,
+        wishlist_book_ids=wishlist_book_ids
+    )
 
 @app.route('/book/<int:id>', methods=['GET', 'POST']) # thay thế đoạn cũ(thêm tính năng mới)
 @login_required
@@ -351,7 +389,7 @@ def view_book(id):
     # Lấy tất cả đánh giá của sách này
     ratings = Rating.query.filter_by(book_id=book.id).order_by(Rating.created_at.desc()).all()
     
-    return render_template('view_book.html', book=book, form=form, ratings=ratings, existing_rating=existing_rating) #
+    return render_template('view_book.html', book=book, form=form, ratings=ratings, existing_rating=existing_rating) 
 
 @app.route('/borrow_book/<int:book_id>')
 @login_required
@@ -612,6 +650,67 @@ def toggle_wishlist(book_id):
         
     # Quay lại trang người dùng vừa đứng
     return redirect(request.referrer or url_for('index'))
+
+# XEM DANH SÁCH USER
+@app.route('/manage_users')
+@login_required
+@admin_required
+def manage_users():
+    users = User.query.all()
+    return render_template('manage_users.html', users=users)
+# THÊM USER
+@app.route('/add_user', methods=['POST'])
+@login_required
+@admin_required
+def add_user():
+    user = User(
+        username=request.form['username'],
+        fullname=request.form['fullname'],
+        user_code=request.form['user_code'],
+        is_admin=('is_admin' in request.form)
+    )
+    user.set_password(request.form['password'])
+    db.session.add(user)
+    db.session.commit()
+    flash('Đã thêm người dùng', 'success')
+    return redirect(url_for('manage_users'))
+# SỬA USER
+@app.route('/edit_user/<int:id>')
+@login_required
+@admin_required
+def edit_user_page(id):
+    return render_template('edit_user.html', user=User.query.get_or_404(id))
+@app.route('/update_user/<int:id>', methods=['POST'])
+@login_required
+@admin_required
+def update_user(id):
+    user = User.query.get_or_404(id)
+    user.fullname = request.form['fullname']
+    user.position = request.form['position']
+    user.is_admin = ('is_admin' in request.form)
+    db.session.commit()
+    flash('Cập nhật thành công', 'success')
+    return redirect(url_for('manage_users'))
+# CHẶN USER
+@app.route('/toggle_user/<int:id>')
+@login_required
+@admin_required
+def toggle_user(id):
+    user = User.query.get_or_404(id)
+
+    if user.id == current_user.id:
+        flash('Không thể tự khóa chính mình', 'warning')
+        return redirect(url_for('manage_users'))
+
+    user.is_active = not user.is_active
+    db.session.commit()
+
+    if user.is_active:
+        flash('Đã mở khóa tài khoản', 'success')
+    else:
+        flash('Đã chặn tài khoản', 'danger')
+
+    return redirect(url_for('manage_users'))
 
 # ==============================================================================
 # 6. TẠO DỮ LIỆU MẪU & CHẠY APP
