@@ -146,9 +146,9 @@ class UpdateProfileForm(FlaskForm):
         if username.data != current_user.username:
             if User.query.filter_by(username=username.data).first(): raise ValidationError('Tên đăng nhập này đã có người sử dụng.')
 class ChangePasswordForm(FlaskForm):
-    old_password = PasswordField('MK cũ', validators=[DataRequired()])
-    new_password = PasswordField('MK mới', validators=[DataRequired(), Length(min=6)])
-    confirm_password = PasswordField('Xác nhận MK', validators=[DataRequired(), EqualTo('new_password')])
+    old_password = PasswordField('Nhập mật khẩu cũ', validators=[DataRequired()])
+    new_password = PasswordField('Nhập mật khẩu mới', validators=[DataRequired(), Length(min=6)])
+    confirm_password = PasswordField('Xác nhận lại mật khẩu mới', validators=[DataRequired(), EqualTo('new_password')])
     submit_password = SubmitField('Đổi mật khẩu')
 
 # ==== Thêm form đánh giá sách ====
@@ -240,16 +240,25 @@ def logout():
 def profile():
     profile_form = UpdateProfileForm()
     password_form = ChangePasswordForm()
+
+    # ===== CẬP NHẬT HỒ SƠ =====
     if profile_form.submit_profile.data and profile_form.validate():
         if profile_form.avatar.data:
-            current_user.avatar = save_picture(profile_form.avatar.data, app.config['UPLOAD_FOLDER_AVATARS'])
+            current_user.avatar = save_picture(
+                profile_form.avatar.data,
+                app.config['UPLOAD_FOLDER_AVATARS']
+            )
+
         current_user.fullname = profile_form.fullname.data
         current_user.username = profile_form.username.data
         current_user.birth_date = profile_form.birth_date.data
         current_user.position = profile_form.position.data
+
         db.session.commit()
         flash('Cập nhật hồ sơ thành công!', 'success')
         return redirect(url_for('profile'))
+
+    # ===== ĐỔI MẬT KHẨU =====
     if password_form.submit_password.data and password_form.validate():
         if not current_user.check_password(password_form.old_password.data):
             flash('Mật khẩu cũ không đúng.', 'danger')
@@ -258,14 +267,45 @@ def profile():
             db.session.commit()
             flash('Đổi mật khẩu thành công!', 'success')
             return redirect(url_for('profile'))
+
+    # ===== LOAD FORM =====
     if request.method == 'GET':
         profile_form.fullname.data = current_user.fullname
         profile_form.username.data = current_user.username
         profile_form.birth_date.data = current_user.birth_date
         profile_form.position.data = current_user.position
-    image_file = url_for('static', filename='avatars/' + current_user.avatar)
-    my_logs = BorrowLog.query.filter_by(user_id=current_user.id).order_by(BorrowLog.borrow_date.desc()).all()
-    return render_template('profile.html', profile_form=profile_form, password_form=password_form, image_file=image_file, my_logs=my_logs)
+
+    # ===== AVATAR =====
+    image_file = url_for(
+        'static',
+        filename='avatars/' + current_user.avatar
+    )
+
+    # ===== USER: lịch sử mượn =====
+    my_logs = BorrowLog.query.filter_by(
+        user_id=current_user.id
+    ).order_by(
+        BorrowLog.borrow_date.desc()
+    ).all()
+
+    # ===== ADMIN: danh sách người đang mượn =====
+    all_borrowing_logs = None
+    if current_user.is_admin:
+        all_borrowing_logs = BorrowLog.query.filter_by(
+            return_date=None
+        ).order_by(
+            BorrowLog.borrow_date.desc()
+        ).all()
+
+    return render_template(
+        'profile.html',
+        profile_form=profile_form,
+        password_form=password_form,
+        image_file=image_file,
+        my_logs=my_logs,
+        all_borrowing_logs=all_borrowing_logs
+    )
+
 
 @app.route('/')
 @login_required
