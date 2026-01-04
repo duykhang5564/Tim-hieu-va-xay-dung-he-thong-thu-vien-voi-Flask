@@ -736,9 +736,9 @@ def create_sample_data():
             user.set_password('Admin777')  # Mật khẩu mặc định cho tất cả admin
             db.session.add(user)
             
-    authors = ["Nguyễn Nhật Ánh", "J.K. Rowling", "Stephen King"]
-    categories = ["Tiểu thuyết", "Trinh thám", "Kinh dị"]
-    languages = ["Tiếng Việt", "Tiếng Anh"]
+    authors = ["Agatha Christie", "Arthur Conan Doyle", "Bảo Ninh", "Bùi Giáng", "Chế Lan Viên", "Chu Lai", "Dan Brown", "Đoàn Giỏi", "Đoàn Thị Điểm", "Dương Thu Hương", "Ernest Hemingway", "Fyodor Dostoevsky", "George Orwell", "Hàn Mặc Tử", "Haruki Murakami", "Hồ Anh Thái", "Hồ Chí Minh", "Huy Cận", "J.K. Rowling", "Leo Tolstoy", "Lưu Quang Vũ", "Mai Văn Phấn", "Nam Cao", "Ngô Tất Tố", "Nguyễn Bính", "Nguyễn Công Hoan", "Nguyễn Du", "Nguyễn Dữ", "Nguyễn Huy Thiệp", "Nguyễn Khải", "Nguyễn Khoa Điềm", "Nguyễn Minh Châu", "Nguyễn Ngọc Tư", "Nguyễn Nhật Ánh", "Nguyễn Quang Sáng", "Nguyễn Thị Thu Huệ", "Nguyễn Trí", "Nguyễn Tuân", "Phạm Tiến Duật", "Phan Thị Vàng Anh", "Stephen King", "Thạch Lam", "Tô Hoài", "Tố Hữu", "Trần Đăng Khoa", "Vũ Trọng Phụng", "Xuân Diệu", "Y Ban"]
+    categories = ["Chính trị", "Giáo dục", "Hài hước", "Khoa học", "Khoa học viễn tưởng", "Kinh dị", "Kỹ năng sống", "Lịch sử", "Ngôn tình", "Phiêu lưu", "Tâm lý", "Thiếu nhi", "Tiểu thuyết", "Triết học", "Trinh thám", "Tự truyện", "Văn học cổ điển", "Văn học hiện đại", "Văn hóa", "Xã hội"]
+    languages = ["Tiếng Ả Rập", "Tiếng Anh", "Tiếng Bồ Đào Nha", "Tiếng Đức", "Tiếng Hà Lan", "Tiếng Hàn", "Tiếng Hindi", "Tiếng Indonesia", "Tiếng Nhật", "Tiếng Nga", "Tiếng Pháp", "Tiếng Thái", "Tiếng Thổ Nhĩ Kỳ", "Tiếng Trung", "Tiếng Tây Ban Nha", "Tiếng Việt", "Tiếng Ý", "Tiếng Ba Lan", "Tiếng Séc", "Tiếng Thụy Điển"]
     for n in authors: 
         if not Author.query.filter_by(name=n).first(): db.session.add(Author(name=n))
     for n in categories: 
